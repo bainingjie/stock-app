@@ -95,8 +95,9 @@ export default {
   },
   created: function() {
     this.database = firebase.database();
-    this.uid = firebase.auth().currentUser.uid;
-    this.item_DB = this.database.ref("item_info/" + this.uid);
+    // this.uid = firebase.auth().currentUser.uid;
+    // this.item_DB = this.database.ref("item_info/" + this.uid);
+    this.item_DB = this.database.ref("item_info/" );
  
     // データに変更があると実行されるfunction
     this.item_DB.on("value", (snapshot) => {

@@ -22,19 +22,19 @@ let router =  new Router({
       path: '/managestock',
       name: 'StockManager',
       component: StockManager,
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: false }
     },
     {
       path: '/checkstock',
       name: 'StockChecker',
       component: StockChecker,
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: false }
     },
     {
       path: '/setting',
       name: 'StockSetting',
       component: StockSetting,
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: false }
     },
     {
       path: '/signin',

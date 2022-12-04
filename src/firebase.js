@@ -2,21 +2,21 @@ import firebase from "@firebase/app";
 import "@firebase/auth";
 import store from "./store";
 
-var config = {
-    apiKey: "AIzaSyBUvbQwBGnQbie3kY39WjOl3dehF9uFryY",
-    authDomain: "stock-management.interimadd.com",
-    databaseURL: "https://azb-stock-management.firebaseio.com",
-    projectId: "azb-stock-management",
-    storageBucket: "azb-stock-management.appspot.com",
-    messagingSenderId: "261885111708",
-    appId: "1:261885111708:web:bb90ba1f95ce74f4d16c59",
-    measurementId: "G-TGKF1EL9S2"
-  }
+const config = {
+  apiKey: "AIzaSyDSaju1b8wtB_lKrMVKeQzCLSnLyNuoOeI",
+  authDomain: "stock-app-7c76b.firebaseapp.com",
+  databaseURL: "https://stock-app-7c76b-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "stock-app-7c76b",
+  storageBucket: "stock-app-7c76b.appspot.com",
+  messagingSenderId: "426313048975",
+  appId: "1:426313048975:web:11777feaf68e281be5a1fa"
+};
+
 
 export default {
   init() {
     firebase.initializeApp(config);
-    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+    // firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
   },
   login() {
     const provider = new firebase.auth.GoogleAuthProvider();

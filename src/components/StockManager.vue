@@ -126,13 +126,15 @@ export default {
   },
   created: function() {
     this.database = firebase.database()
-    this.uid = firebase.auth().currentUser.uid
-    this.stock_DB = this.database.ref("stock_info/" + this.uid)
+    // this.uid = firebase.auth().currentUser.uid
+    // this.stock_DB = this.database.ref("stock_info/" + this.uid)
+    this.stock_DB = this.database.ref("stock_info/" )
     // データに変更があると実行されるfunction
     this.stock_DB.on("value", (snapshot) => {
       this.stock_info = snapshot.val() // 再取得してstock_infoに格納する
     })
-    this.database.ref("item_info/" + this.uid).once('value')
+    // this.database.ref("item_info/" + this.uid).once('value')
+    this.database.ref("item_info/").once('value')
       .then((snapshot) => {
         const item_list = snapshot.val()
         this.parseItemList(item_list)

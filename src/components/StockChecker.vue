@@ -38,8 +38,9 @@ export default {
   },
   created: function() {
     this.database = firebase.database();
-    this.uid = firebase.auth().currentUser.uid;
-    this.stock_DB = this.database.ref("stock_info/" + this.uid);
+    // this.uid = firebase.auth().currentUser.uid;
+    // this.stock_DB = this.database.ref("stock_info/" + this.uid);
+    this.stock_DB = this.database.ref("stock_info/");
  
     // データに変更があると実行されるfunction
     this.stock_DB.on("value", (snapshot) => {
