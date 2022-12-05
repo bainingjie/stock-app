@@ -10,35 +10,37 @@
           <span>入出庫情報編集</span>
         </a>
         <div class="field is-horizontal" v-bind:class="{'is-hidden-mobile': !is_show_edit_view}">
-          <p class="control has-tooltip-primary" data-tooltip="商品名">
+          <p class="control has-tooltip-primary" data-tooltip="状態">
             <span class="select">
-              <select v-model="productName">
-                <option v-for="val in product_name_list" :key=val :value=val>{{val}}</option>
+              <select v-model="IN_or_OUT">
+                <option  value="入庫">入庫</option>
+                <option  value="出庫">出庫</option>
               </select>
             </span>
           </p>
-          <p class="control has-tooltip-primary" data-tooltip="移動元">
+          <p class="control has-tooltip-primary" data-tooltip="商品">
             <span class="select">
-              <select v-model="from">
-                <option :value=val v-for="val in from_name_list" :key=val>{{val}}</option>
-              </select>
-            </span>
-          </p>
-          <p class="control has-tooltip-primary" data-tooltip="移動先">
-            <span class="select">
-              <select v-model="to">
-                <option v-for="val in to_name_list" :key=val :value=val>{{val}}</option>
+              <select v-model="productID">
+                <option v-for="(item,id) in item_info " :key=id :value=id>{{item?.product_name}}</option>
               </select>
             </span>
           </p>
           <p class="control  has-tooltip-primary" data-tooltip="個数">
             <input class="input" type="text" placeholder="個数" v-model="quantity">
           </p>
-          <p class="control  has-tooltip-primary" data-tooltip="単価">
+          <!-- <p class="control  has-tooltip-primary" data-tooltip="単価">
             <input class="input" type="text" placeholder="単価" v-model="priceYen">
-          </p>
+          </p> -->
           <p class="control has-tooltip-primary" data-tooltip="反映日">
             <input class="input" type="date" v-model="applyData">
+          </p>
+          <p class="control has-tooltip-primary" data-tooltip="担当者">
+            <span class="select">
+              <select v-model="staff">
+                <option  value="白">白</option>
+                <option  value="張">張</option>
+              </select>
+            </span>
           </p>
           <p class="control">
             <a class="button is-primary" v-on:click="addStockInfo()">
@@ -55,11 +57,12 @@
             <th class="is-hidden-mobile"><abbr title="Index">Idx</abbr></th>
             <th>入出</th>
             <th>商品名</th>
-            <th>From</th>
-            <th>To</th>
+            <!-- <th>From</th>
+            <th>To</th> -->
             <th>数量</th>
-            <th>単価</th>
-            <th class="is-hidden-mobile">登録日</th>
+            <th>担当者</th>
+            <!-- <th>単価</th> -->
+            <!-- <th class="is-hidden-mobile">登録日</th> -->
             <th class="is-hidden-mobile">反映日</th>
           </tr>
         </thead>
@@ -67,12 +70,13 @@
           <tr v-for="(stock, index) in filteredStockInfo" :key="stock.id">
             <th class="is-hidden-mobile">{{index}}</th>
             <td>{{ stock.IN_or_OUT }}</td>
-            <td>{{ stock.productName }}</td>
-            <td>{{ stock.from }}</td>
-            <td>{{ stock.to }}</td>
+            <td>{{ item_info[stock.productID]?.product_name }}</td>
+            <!-- <td>{{ stock.from }}</td>
+            <td>{{ stock.to }}</td> -->
             <td>{{ stock.quantity }}</td>
-            <td>{{ stock.priceYen }}</td>
-            <td class="is-hidden-mobile">{{ stock.registDate }}</td>
+            <!-- <td>{{ stock.priceYen }}</td> -->
+            <!-- <td class="is-hidden-mobile">{{ stock.registDate }}</td> -->
+            <td>{{ stock.staff }}</td>
             <td class="is-hidden-mobile">{{ stock.applyData }}</td>
             <td><a class="button is-primary is-rounded is-small" v-on:click="deleteStockInfo(stock.key)" 
                  v-bind:class="{'is-hidden-mobile': !is_show_edit_view}">
@@ -108,6 +112,10 @@ export default {
       database: null,
       stock_DB: null,
       stock_info: [],
+      item_info:[],
+      productID:"",
+      staff:"白",
+
       productName: "",
       quantity: "",
       priceYen: "",
@@ -121,7 +129,11 @@ export default {
       stocking_place_list: [],
       warehouse_place_list: [],
       seller_place_list: [],
-      is_show_edit_view: false
+      is_show_edit_view: false,
+
+      /* added */
+      IN_or_OUT:"入庫",
+
     }
   },
   created: function() {
@@ -136,9 +148,9 @@ export default {
     // this.database.ref("item_info/" + this.uid).once('value')
     this.database.ref("item_info/").once('value')
       .then((snapshot) => {
-        const item_list = snapshot.val()
-        this.parseItemList(item_list)
+        this.item_info = snapshot.val()
       })
+
   },
   computed: {
     filteredStockInfo: function() {
@@ -165,12 +177,10 @@ export default {
     // DBのstock_info/[uid]/以下にデータを格納していく
     addStockInfo: function() {
       this.stock_DB.push({
-        IN_or_OUT: this.checkInputOrOutput(this.from, this.to),
-        productName: this.productName,
-        quantity: this.quantity,
-        priceYen: this.priceYen,
-        from: this.from,
-        to: this.to,
+        IN_or_OUT: this.IN_or_OUT,
+        productID: this.productID,
+        quantity: this.quantity,  
+        staff:this.staff,      
         registDate: today_str,
         applyData: this.applyData,
       })
@@ -178,69 +188,6 @@ export default {
     // stock_infoの削除
     deleteStockInfo: function(key) {
       this.stock_DB.child(key).remove()
-    },
-    setProductAndItemList: function(item_list) {
-      this.product_name_list = []
-      this.place_name_list = []
-      for(let idx in item_list){
-        if(item_list[idx].type == 1){
-          this.product_name_list.push(item_list[idx].itemName)
-        }
-        else if(item_list[idx].type == 2){
-          this.place_name_list.push(item_list[idx].itemName)
-        }
-      }
-    },
-    checkInputOrOutput: function(from_place, to_place) {
-      const is_from_stocking_place = (this.stocking_place_list.indexOf(from_place) >= 0)  // 仕入れ先からか来たものか？
-      const is_to_warehouse_place = (this.warehouse_place_list.indexOf(to_place) >= 0)  // 倉庫に入っていくか？
-      if(is_from_stocking_place==true && is_to_warehouse_place==true){
-        return "入庫"
-      }
-      const is_from_warehouse_place = (this.warehouse_place_list.indexOf(from_place) >= 0)  // 倉庫から出ていくか？
-      const is_to_seller_place = (this.seller_place_list.indexOf(to_place) >= 0)  // 販売先に出ていくか？
-      if(is_from_warehouse_place==true && is_to_seller_place==true){
-        return "出庫"
-      }
-      return "-"
-    },
-    parseItemList: function(item_list) {
-      for(let idx in item_list){
-        if(item_list[idx].type == 1){
-          this.product_name_list.push(item_list[idx].itemName)
-          this.productName = this.product_name_list[0]
-        }
-        else if(item_list[idx].type == 2){
-          if(item_list[idx].itemType == "仕入れ先"){this.stocking_place_list.push(item_list[idx].itemName)}
-          if(item_list[idx].itemType == "在庫管理場所"){this.warehouse_place_list.push(item_list[idx].itemName)}
-          if(item_list[idx].itemType == "販売先"){this.seller_place_list.push(item_list[idx].itemName)}
-        }
-      }
-      this.from_name_list = this.warehouse_place_list.concat(this.stocking_place_list)
-      this.to_name_list = this.warehouse_place_list.concat(this.seller_place_list)
-      // 未設定時の処理
-      const not_set_alert = "「項目設定」してください"
-      if(this.product_name_list.length == 0){
-        this.product_name_list.push(not_set_alert)
-        this.productName = not_set_alert
-      }
-      else{
-        this.productName = this.product_name_list[0]
-      }
-      if(this.from_name_list.length == 0){
-        this.from_name_list.push(not_set_alert)
-        this.from = not_set_alert
-      }
-      else{
-        this.from = this.from_name_list[0]
-      }
-      if(this.to_name_list.length == 0){
-        this.to_name_list.push(not_set_alert)
-        this.to = not_set_alert
-      }
-      else{
-        this.to = this.to_name_list[0]
-      }
     }
   }
 }

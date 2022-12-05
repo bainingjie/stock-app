@@ -5,15 +5,11 @@
         <thead>
           <tr>
             <th><abbr title="Index">Product</abbr></th>
-            <th v-for="(value, key) in getPlaceList" :key="key">{{value}}</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(stock, key) in aggregateStock" :key="key">
-            <th>{{key}}</th>
-            <td v-for="(value, key2) in getPlaceList" :key="key2">
-              {{ stock[value] }}
-            </td>
+          <tr v-for="(stock, key) in stock" :key="key">
+            <th>商品名：{{item_info[key]?.product_name}} 、個数 {{stock}}</th>
           </tr>
         </tbody>
       </table>
@@ -31,8 +27,11 @@ export default {
       database: null,
       stock_DB: null,
       stock_info: [],
+      item_info:[],
+      product_list:{},
+
+
       place_list: [],
-      product_list: [],
       aggregate_res: {}
     };
   },
@@ -46,50 +45,28 @@ export default {
     this.stock_DB.on("value", (snapshot) => {
       this.stock_info = snapshot.val(); // 再取得してstock_infoに格納する
     });
+
+    this.database.ref("item_info/").once('value')
+      .then((snapshot) => {
+        this.item_info = snapshot.val()
+      })
   },
   computed: {
-    getPlaceList: function() {
-      let place_list = []
-      let product_list = []
+    stock(){
+      let product_list = {}
       for (let key in this.stock_info) {
-        const product = this.stock_info[key].productName
-        const from_p = this.stock_info[key].from
-        const to_p = this.stock_info[key].to
-        if(product_list.indexOf(product)==-1){product_list.push(product)}
-        if(place_list.indexOf(from_p)==-1){place_list.push(from_p)}
-        if(place_list.indexOf(to_p)==-1){place_list.push(to_p)} 
-      }
-      return place_list
-    },
-    aggregateStock: function() {
-      let place_list = []
-      let product_list = []
-      for (let key in this.stock_info) {
-        const product = this.stock_info[key].productName
-        const from_p = this.stock_info[key].from
-        const to_p = this.stock_info[key].to
-        if(product_list.indexOf(product)==-1){product_list.push(product)}
-        if(place_list.indexOf(from_p)==-1){place_list.push(from_p)}
-        if(place_list.indexOf(to_p)==-1){place_list.push(to_p)} 
-      }
+        const productID = this.stock_info[key].productID
+        if(! (productID in product_list)){
+          product_list[productID]=0
+        }
 
-      let ret_aggregate_stock_info = {}
-      for (let idx in product_list){
-        ret_aggregate_stock_info[product_list[idx]] = {}
-        for (let idx_p in place_list){
-          ret_aggregate_stock_info[product_list[idx]][place_list[idx_p]] = 0
+        if(this.stock_info[key].IN_or_OUT=="入庫"){
+          product_list[productID] += Number(this.stock_info[key].quantity)
+        }else if(this.stock_info[key].IN_or_OUT=="出庫"){
+          product_list[productID] -= Number(this.stock_info[key].quantity)
         }
       }
-
-      for (let key in this.stock_info) {
-        const product = this.stock_info[key].productName
-        const from_p = this.stock_info[key].from
-        const to_p = this.stock_info[key].to
-        const quantity = Number(this.stock_info[key].quantity)
-        ret_aggregate_stock_info[product][from_p] -= quantity
-        ret_aggregate_stock_info[product][to_p] += quantity
-      }
-      return ret_aggregate_stock_info
+      return product_list
     }
   },
   methods: {

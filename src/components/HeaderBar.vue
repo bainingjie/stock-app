@@ -16,7 +16,7 @@
     <div class="navbar-start">
       <a class="navbar-item" href="/managestock">
         <span class="icon has-text-primary"><i class="fa fa-edit"></i></span>
-        入出庫情報登録
+        入出庫管理
       </a>
       <a class="navbar-item" href="/checkstock">
         <span class="icon has-text-primary is-medium"><i class="fa fa-cubes"></i></span>
@@ -24,12 +24,12 @@
       </a>
       <a class="navbar-item" href="/setting">
         <span class="icon has-text-primary"><i class="fa fa-cog"></i></span>
-        項目設定
+        商品情報管理
       </a>
     </div>
     <div class="navbar-end">
-      <a class="navbar-item navbar-text" href="/signin">Sign In</a>
-      <a class="navbar-item navbar-text" @click="signOut">Sign out</a>
+      <!-- <a class="navbar-item navbar-text" href="/signin">Sign In</a>
+      <a class="navbar-item navbar-text" @click="signOut">Sign out</a> -->
     </div>
   </div>
 </nav>

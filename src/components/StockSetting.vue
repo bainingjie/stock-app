@@ -9,17 +9,28 @@
             </p>
             <div class="field has-addons">
               <p class="control is-expanded">
+                <input class="input is-size-7-mobile" type="text" placeholder="商品番号" v-model="product_number">
                 <input class="input is-size-7-mobile" type="text" placeholder="商品名" v-model="product_name">
+                <input class="input is-size-7-mobile" type="text" placeholder="カテゴリー" v-model="product_category">
+                <input class="input is-size-7-mobile" type="text" placeholder="(W)幅" v-model="product_width">
+                <input class="input is-size-7-mobile" type="text" placeholder="(D)奥行" v-model="product_depth">
+                <input class="input is-size-7-mobile" type="text" placeholder="(H)高さ" v-model="product_height">
+                <input class="input is-size-7-mobile" type="text" placeholder="重量（g）" v-model="product_weight">
+
               </p>
+            </div>
+            <div class="mb-3">
               <p class="control">
                 <a class="button is-primary is-size-7-mobile" v-on:click="addProductInfo()">
                   追加
                 </a>
               </p>
             </div>
-            <div class="field has-addons" v-for="(item) in filterProductList" :key="item.key">
+
+            <div class="field has-addons mt-3" v-for="(item) in filterProductList" :key="item.key">
               <p class="control is-expanded">
-                <input class="input is-size-7-mobile" type="text" :value="item.itemName" readonly>
+                <input class="input is-size-7-mobile" type="text" :value="item.product_name" readonly>
+                <span>商品番号:{{item.product_number}}、カテゴリー：{{item.product_category}}、サイズ:{{item.product_width}}*{{item.product_depth}}*{{item.product_height}}、重量:{{item.product_weight}}</span>
               </p>
               <p class="control">
                 <a class="button is-danger is-size-7-mobile" v-on:click="deleteItemInfo(item.key)">
@@ -27,47 +38,7 @@
                 </a>
               </p>
             </div>
-          </div>
-        </div>
-      </div>
-      <div class="column">
-        <div class="card">
-          <div class="card-content">
-            <p class="title is-size-5-mobile">
-              場所リスト
-            </p>
-            <div class="field has-addons">
-              <p class="control">
-                <span class="select is-size-7-mobile">
-                  <select v-model=place_type>
-                    <option>仕入れ先</option>
-                    <option>在庫管理場所</option>
-                    <option>販売先</option>
-                  </select>
-                </span>
-              </p>
-              <p class="control is-expanded">
-                <input class="input is-size-7-mobile" type="text" placeholder="場所名" v-model="plcae_name">
-              </p>
-              <p class="control">
-                <a class="button is-primary is-size-7-mobile" v-on:click="addPlaceInfo()">
-                  追加
-                </a>
-              </p>
-            </div>
-            <div class="field has-addons" v-for="(item) in filterPlaceList" :key="item.key">
-              <p class="control is-expanded">
-                <input class="input is-size-7-mobile" type="text" :value="item.itemType" readonly>
-              </p>
-              <p class="control is-expanded">
-                <input class="input is-size-7-mobile" type="text" :value="item.itemName" readonly>
-              </p>
-              <p class="control">
-                <a class="button is-danger is-size-7-mobile" v-on:click="deleteItemInfo(item.key)">
-                  削除
-                </a>
-              </p>
-            </div>
+
           </div>
         </div>
       </div>
@@ -79,7 +50,6 @@
 import firebase from "firebase";
 
 const PRODUCT_NAME = 1
-const PLACE_NAME = 2
  
 export default {
   name: "StockManager",
@@ -88,9 +58,15 @@ export default {
       database: null,
       item_DB: null,
       item_list: [],
+
+      /* product field */
       product_name: "",
-      plcae_name: "",
-      place_type: "仕入れ先"
+      product_number: "",
+      product_category: "",
+      product_width: "",
+      product_depth: "",
+      product_height: "",
+      product_weight:"",
     };
   },
   created: function() {
@@ -107,27 +83,28 @@ export default {
   computed: {
     filterProductList: function() {
       return this.filterItemList(PRODUCT_NAME)
-    },
-    filterPlaceList: function() {
-      return this.filterItemList(PLACE_NAME)
-    },
+    }
   },
   methods: {
     // DBのitem_info/[uid]/以下にデータを格納していく
     addProductInfo: function() {
       this.item_DB.push({
         type: PRODUCT_NAME,
-        itemName: this.product_name,
+        product_name: this.product_name,
+        product_number:this.product_number,
+        product_category:this.product_category,
+        product_width:this.product_width,
+        product_depth:this.product_depth,
+        product_height:this.product_height,
+        product_weight:this.product_weight,
       })
       this.product_name = ""
-    },
-    addPlaceInfo: function() {
-      this.item_DB.push({
-        type: PLACE_NAME,
-        itemName: this.plcae_name,
-        itemType: this.place_type
-      })
-      this.plcae_name = ""
+      this.product_category= ""
+      this.product_number= ""
+      this.product_width= ""
+      this.product_height= ""
+      this.product_depth= ""
+      this.product_weight= ""
     },
     deleteItemInfo: function(key) {
       this.item_DB.child(key).remove();
